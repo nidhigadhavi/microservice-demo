@@ -3,10 +3,10 @@ const router = new Router();
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { RegisterSchemaValidator, LoginSchemaValidator } = require('../../middleware/apiValidator');
 // const config = require('../config');
 
-
-router.post('/register', async (req, res) => {
+router.post('/register', RegisterSchemaValidator, async (req, res) => {
     const { username, password, email } = req.body;
     // verify if username and password are not empty
     if (!username || !password || !email) {
@@ -31,7 +31,7 @@ router.post('/register', async (req, res) => {
 
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', LoginSchemaValidator, async (req, res) => {
     const { email, password } = req.body;
     // verify if username and password are not empty
     if (!email || !password) {
