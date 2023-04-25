@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const app = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3020;
 const mongoose = require("mongoose");
 const amqp = require("amqplib");
 const Order = require("./models/Order");
@@ -11,8 +11,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 var channel, connection;
 
+console.log("Order service initialized");
 mongoose
-	.connect(process.env.DB_URL, {
+	.connect("mongodb://0.0.0.0:27017/product-service", {
 		useNewUrlParser: true,
 		useUnifiedTopology: true,
 	})
@@ -21,7 +22,7 @@ mongoose
 
 // RabbitMQ connection
 async function connectToRabbitMQ() {
-	const amqpServer = process.env.MQTT_URL;
+	const amqpServer = "amqps://kydjgoop:36uhKqPFFNPhrQnyNHKycEuw5DKe4GYd@shrimp.rmq.cloudamqp.com/kydjgoop";
 	connection = await amqp.connect(amqpServer);
 	channel = await connection.createChannel();
 	console.log("channel create channel : order-service-queue");
@@ -43,6 +44,7 @@ createOrder = (products, userEmail) => {
 	order.save();
 	return order;
 };
+
 console.log("Order service");
 connectToRabbitMQ().then(() => {
 	console.log("into the connect rabbitMQ Order Service ::");
