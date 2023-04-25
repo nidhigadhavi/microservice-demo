@@ -49,12 +49,12 @@ console.log("Order service");
 connectToRabbitMQ().then(() => {
 	console.log("into the connect rabbitMQ Order Service ::");
 	channel.consume("order-service-queue", (data) => {
-		console.log("inot order service consume", data);
+		console.log("into order service consume", data);
 		// order service queue listens to this queue
 		const { products, userEmail } = JSON.parse(data.content);
 		const newOrder = createOrder(products, userEmail);
 		channel.ack(data);
-		console.log("into the create order ACK::::");
+		console.log("into the create order ACK::::::::::");
 		channel.sendToQueue(
 			"product-service-queue",
 			Buffer.from(JSON.stringify(newOrder))

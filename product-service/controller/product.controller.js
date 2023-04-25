@@ -50,13 +50,13 @@ async function buyProduct(req, res) {
 		const products = await getProductService(productIds);
 
 		publishToRabbitMQ(
-			"order-service-queue",
+			"product-service-queue",
 			{
 				products,
 				userEmail: req.user.email,
 			},
 			(data) => {
-				console.log("subscribe order service channel", data);
+				console.log(">>>>subscribe order service channel<<<<", data);
 			}
 		);
 
@@ -78,7 +78,7 @@ async function buyProduct(req, res) {
 		// 	channel.ack(data);
 		// });
 
-		consumeFromRabbitMQ("product-service-queue", (data) => {
+		consumeFromRabbitMQ("order-service-queue", (data) => {
 			console.log(
 				"order from order service to product service",
 				data

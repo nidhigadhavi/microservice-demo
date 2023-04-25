@@ -22,15 +22,15 @@ async function disconnectFromRabbitMQ() {
 async function consumeFromRabbitMQ(channelname, cb) {
 	console.log("into consumee rabittMQ" , channelname);
 	channel.consume(channelname, (details) => {
-		console.log("data", details);
+		console.log("data>>><<<>>>><<<<>>>>><<<<<<>>>>>", details);
 		data = JSON.parse(details);
-		channel.ack(data);
-		cb(data);
+		channel.ack(data);		
 	});
 }
 
 /** send or call or publish data to chennel */
 async function publishToRabbitMQ(channelname, dataTosend, cb) {
+	console.log("send data to channel : order-service-queue" , channelname , dataTosend);
 	await channel.sendToQueue(
 		channelname,
 		Buffer.from(JSON.stringify(dataTosend))
