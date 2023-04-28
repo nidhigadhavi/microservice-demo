@@ -3,66 +3,72 @@ const router = new Router();
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-// const { RegisterSchemaValidator, LoginSchemaValidator } = require('../../middleware/apiValidator');
-// const config = require('../config');
+const passport = require("passport");
 
-router.post("/register", async (req, res) => {
-	const { username, password, email } = req.body;
-	// verify if username and password are not empty
-	if (!username || !password || !email) {
-		return res.status(400).json({
-			message: "Please provide username, password and email",
-		});
-	}
-	const user = await User.findOne({ username });
+const {
+	Register,
+	LoginUser,
+	LogoutUser,
+} = require("../controller/auth.controller");
 
-	if (user)
-		return res
-			.status(400)
-			.json({ error: true, message: "User already exists" });
+const GoogleStrategy = require("passport-google-oauth").OAuth2Strategy;
+const GOOGLE_CLIENT_ID =
+	"147737003183-6vsu446gtiu1lt9ru4adulaeh2hi1pj9.apps.googleusercontent.com";
+const GOOGLE_CLIENT_SECRET = "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";
+passport.use(
+	new GoogleStrategy(
+		{
+			clientID: GOOGLE_CLIENT_ID,
+			clientSecret: GOOGLE_CLIENT_SECRET,
+			callbackURL:
+				" https://9f3f-219-91-134-123.ngrok-free.app/auth/google/callback",
+		},
+		function (accessToken, refreshToken, profile, done) {
+			console.log("stretegy google >>>>");
+			userProfile = profile;
+			return done(null, userProfile);
+		}
+	)
+);
 
-	const salt = await bcrypt.genSalt(Number(10));
-	const hashedPassword = await bcrypt.hash(password, salt);
-	await new User({ ...req.body, password: hashedPassword }).save();
-
-	return res
-		.status(201)
-		.json({ error: false, message: "User created successfully" });
+router.get("/", (req, res, next) => {
+	// app.get("/", (req, res) => {
+	let file = __dirname.split("/");
+	console.log("render auth ", file);
+	res.sendFile(__dirname + "../views/auth.ejs");
+	// });
+	// res.render("auth");
 });
 
-router.post("/login", async (req, res) => {
-	const { email, password } = req.body;
-	// verify if username and password are not empty
-	if (!email || !password) {
-		return res.status(400).json({
-			message: "Please provide email and password",
-		});
-	}
-	// find user by username
-	// verify if user exists
-	const user = await User.findOne({ email });
-	if (!user)
-		return res
-			.status(400)
-			.json({ error: true, message: "User does not exist" });
-	const isValidPassword = await bcrypt.compare(
-		req.body.password,
-		user.password
-	);
-	if (!isValidPassword)
-		return res
-			.status(400)
-			.json({ error: true, message: "Invalid password" });
-	// create token
-	const payload = {
-		email,
-		username: user.username,
-	};
-	const token = jwt.sign(payload, "secret", { expiresIn: "1h" });
-	res.json({
-		message: "User logged in",
-		token: token,
-	});
+router.get("/success", (req, res, next) => {
+	res.send(userProfile);
 });
 
+router.get("/error", (req, res, next) => {
+	res.send("error in login");
+});
+
+passport.serializeUser((user, cb) => {
+	cb(null, user);
+});
+
+passport.deserializeUser((user, cb) => {
+	cb(null, user);
+});
+
+router.post("/register", Register);
+
+router.post("/login", LoginUser);
+
+router.post("/logout", LogoutUser);
+
+router.post("/google", passport.authenticate("google", ["profile", "email"]));
+
+router.post("/google/callback", function (req, res, next) {
+	passport.authenticate("google", { failureRedirect: "/error" }),
+		function (req, res) {
+			// Successful authentication, redirect success.
+			res.redirect("/success");
+		};
+});
 module.exports = router;

@@ -1,15 +1,15 @@
 module.exports = {
 	apps: [
 		{
-			name: "order-service",
+			name: "order-service :3020",
 			script: "nodemon ./order-service/index.js",
 		},
 		{
-			name: "product-service",
+			name: "product-service :3030",
 			script: "nodemon ./product-service/index.js",
 		},
 		{
-			name: "auth-service",
+			name: "auth-service :3010",
 			script: "nodemon ./auth-service/index.js",
 		},
 	],

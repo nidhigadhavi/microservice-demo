@@ -15,7 +15,6 @@ const OrderSchema = new Schema(
       required: true,
     },
   },
-
   { timestamps: true }
 );
 
