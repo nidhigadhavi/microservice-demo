@@ -16,7 +16,6 @@ async function Register(req, res, next) {
 		const salt = await bcrypt.genSalt(Number(10));
 		const hashedPassword = await bcrypt.hash(password, salt);
 		let data = await saveUser({ ...req.body, password: hashedPassword });
-		console.log("saved user", data);
 		return sendHttpResponse({
 			res,
 			data: data,
